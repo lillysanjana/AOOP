@@ -1,0 +1,63 @@
+import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+public class WindowTest {
+    private Window window;
+    public void setUp() {
+        window = new Window();
+    }
+    public void testWindowDecorationsAreAdded() {
+        window.addDecorations();
+        assertTrue(window.isDecorated());
+    }
+    public void testWindowTitleIsCorrect() {
+        window.setTitle("Decorated Window");
+        assertEquals("Decorated Window", window.getTitle());
+    }
+    public void testWindowBordersAreVisible() {
+        window.addDecorations();
+        assertTrue(window.hasBorders());
+    }
+}
+public class WindowDecorationUITest {
+
+    private FrameFixture window;
+    public void setUp() {
+        JFrame frame = GuiActionRunner.execute(() -> new JFrame());
+        frame.setSize(400, 400);
+
+        window = new FrameFixture(frame);
+        window.show(); 
+    }
+    public void tearDown() {
+        window.cleanUp();
+    }
+    public void testWindowHasTitle() {
+        window.target().setTitle("Test Window");
+        window.requireTitle("Test Window");
+    }
+    public void testWindowHasDecorations() {
+        window.target().setUndecorated(false);
+        window.requireVisible();
+        assertFalse(window.target().isUndecorated());
+    }
+    public void testWindowCloseButtonExists() {
+        window.target().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        assertTrue(window.target().isDisplayable());
+    }
+}
+public class WindowBehaviorTest {
+    public void testWindowCanBeMaximized() {
+        JFrame window = new JFrame();
+        window.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        assertEquals(JFrame.MAXIMIZED_BOTH, window.getExtendedState());
+    }
+    public void testWindowResizesProperly() {
+        JFrame window = new JFrame();
+        window.setSize(400, 400);
+        window.setSize(600, 600);
+        assertEquals(600, window.getWidth());
+        assertEquals(600, window.getHeight());
+    }
+}
+
