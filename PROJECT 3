@@ -1,0 +1,121 @@
+public interface WindowAutomationTask {
+    void scheduleTask(String task, long delay);
+    void executeTask(String task);
+    void handleError(String task, Exception e);
+}
+import java.util.Timer;
+import java.util.TimerTask;
+
+public class BasicWindowAutomationTask implements WindowAutomationTask {
+    private Timer timer = new Timer();
+    
+    @Override
+    public void scheduleTask(String task, long delay) {
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                executeTask(task);
+            }
+        }, delay);
+    }
+
+    @Override
+    public void executeTask(String task) {
+        System.out.println("Executing task: " + task);
+    }
+    @Override
+    public void handleError(String task, Exception e) {
+        System.err.println("Error executing task: " + task + ". Error: " + e.getMessage());
+    }
+}
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.mockito.Mockito.*;
+
+public class WindowAutomationTaskTest {
+
+    private WindowAutomationTask taskAutomation;
+
+    @Before
+    public void setUp() {
+        taskAutomation = Mockito.spy(new BasicWindowAutomationTask());
+    }
+
+    @Test
+    public void testTaskScheduling() {
+        taskAutomation.scheduleTask("openCurtains", 1000);
+        verify(taskAutomation, timeout(1000)).executeTask("openCurtains");
+    }
+
+    @Test
+    public void testTaskExecution() {
+        taskAutomation.executeTask("closeBlinds");
+        verify(taskAutomation).executeTask("closeBlinds");
+    }
+}
+import org.junit.Test;
+
+import static org.mockito.Mockito.*;
+
+public class WindowAutomationTaskErrorHandlingTest {
+
+    @Test
+    public void testErrorHandling() {
+        WindowAutomationTask taskAutomation = spy(new BasicWindowAutomationTask());
+        
+        doThrow(new RuntimeException("Task failed")).when(taskAutomation).executeTask("openShutters");
+        try {
+            taskAutomation.executeTask("openShutters");
+        } catch (Exception e) {
+            taskAutomation.handleError("openShutters", e);
+        }
+        verify(taskAutomation).handleError(eq("openShutters"), any(RuntimeException.class));
+    }
+}
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
+public class WindowWithDecorationsTest {
+
+    private Window window;
+
+    @Before
+    public void setUp() {
+        window = new BasicWindow();
+        window = new CurtainsDecorator(window);
+        window = new BlindsDecorator(window);
+        window = new ShuttersDecorator(window);
+    }
+
+    @Test
+    public void testWindowDescriptionWithDecorations() {
+        assertEquals("Basic window, with curtains, with blinds, with shutters", window.getDescription());
+    }
+
+    @Test
+    public void testWindowTaskAutomationForMultipleDecorations() {
+        WindowAutomationTask taskAutomation = spy(new BasicWindowAutomationTask());  
+        taskAutomation.scheduleTask("openAllDecorations", 500);
+        verify(taskAutomation, timeout(500)).executeTask("openAllDecorations");
+    }
+}
+import org.junit.Test;
+import static org.mockito.Mockito.*;
+
+public class SpecificWindowTaskTest {
+
+    @Test
+    public void testScheduleAndExecuteSpecificTasks() {
+        WindowAutomationTask taskAutomation = spy(new BasicWindowAutomationTask());
+        taskAutomation.scheduleTask("openCurtains", 1000);
+        taskAutomation.scheduleTask("closeBlinds", 2000);
+        verify(taskAutomation, timeout(1000)).executeTask("openCurtains");
+        verify(taskAutomation, timeout(2000)).executeTask("closeBlinds");
+    }
+}
+
+
+
