@@ -1,0 +1,31 @@
+package aoop;
+class Logger {
+    private static Logger instance;
+    
+    private Logger() {
+        // week 2 Inlab question
+    }
+    
+    public static Logger getInstance() {
+        if (instance == null) {
+            instance = new Logger();
+        }
+        return instance;
+    }
+    
+    public void log(String message) {
+        System.out.println(message);
+    }
+}
+
+public class Application {
+
+    public static void main(String[] args) {
+        Logger logger = Logger.getInstance();
+        logger.log("Starting the application");
+        logger.log("Loading configurations");
+        logger.log("Application running");
+        logger.log("Shutting down the application");
+    }
+
+}
