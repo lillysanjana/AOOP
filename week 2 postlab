@@ -1,0 +1,81 @@
+package aoop;
+
+class UserLoginState {
+
+    // Post Lab Exercise for Singleton Pattern week 2
+    private static UserLoginState instance;
+    private boolean loggedIn;
+    private UserLoginState() {
+        this.loggedIn = false; 
+    }
+    public static UserLoginState getInstance() {
+        if (instance == null) {
+            instance = new UserLoginState();
+        }
+        return instance;
+    }
+    public void login() {
+        loggedIn = true;
+        System.out.println("User has logged in.");
+    }
+    public void logout() {
+        loggedIn = false;
+        System.out.println("User has logged out.");
+    }
+    public boolean isLoggedIn() {
+        return loggedIn;
+    }
+}
+
+public class BankingOperations {
+    private static int balance = 5000; 
+
+    public static void main(String[] args) {
+        UserLoginState loginState = UserLoginState.getInstance();
+        loginState.login();
+        System.out.println("User logged in: " + loginState.isLoggedIn());
+
+        viewBalance();
+        deposit(1000);
+        withdraw(500);
+
+        loginState.logout();
+        System.out.println("User logged in: " + loginState.isLoggedIn());
+    }
+
+    public static void viewBalance() {
+        UserLoginState loginState = UserLoginState.getInstance();
+        if (loginState.isLoggedIn()) {
+            System.out.println("Viewing balance: $" + balance);
+        } 
+        else {
+            System.out.println("User is not logged in. Please log in first.");
+        }
+    }
+
+    public static void deposit(int amount) {
+        UserLoginState loginState = UserLoginState.getInstance();
+        if (loginState.isLoggedIn()) {
+            balance += amount;
+            System.out.println("Deposited $" + amount + ". New balance: $" + balance);
+        } else {
+            System.out.println("User is not logged in. Please log in first.");
+        }
+    }
+
+    public static void withdraw(int amount) {
+        UserLoginState loginState = UserLoginState.getInstance();
+        if (loginState.isLoggedIn()) {
+            if (amount <= balance) {
+                balance -= amount;
+                System.out.println("Withdrew $" + amount + ". New balance: $" + balance);
+            } 
+            else {
+                System.out.println("Insufficient funds. Current balance: $" + balance);
+            }
+        } 
+        else {
+            System.out.println("User is not logged in. Please log in first.");
+        }
+    }
+}
