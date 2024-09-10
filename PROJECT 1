@@ -1,0 +1,101 @@
+public interface Window {
+    void open();
+    void close();
+    String getDescription(); 
+}
+public class BasicWindow implements Window {
+
+    @Override
+    public void open() {
+        System.out.println("Opening the window.");
+    }
+
+    @Override
+    public void close() {
+        System.out.println("Closing the window.");
+    }
+
+    @Override
+    public String getDescription() {
+        return "Basic window";
+    }
+}
+public class CurtainsDecorator extends WindowDecorator {
+
+    public CurtainsDecorator(Window window) {
+        super(window);
+    }
+
+    @Override
+    public String getDescription() {
+        return decoratedWindow.getDescription() + ", with curtains";
+    }
+
+    public void openCurtains() {
+        System.out.println("Opening the curtains.");
+    }
+
+    public void closeCurtains() {
+        System.out.println("Closing the curtains.");
+    }
+}
+public class BlindsDecorator extends WindowDecorator {
+
+    public BlindsDecorator(Window window) {
+        super(window);
+    }
+
+    @Override
+    public String getDescription() {
+        return decoratedWindow.getDescription() + ", with blinds";
+    }
+
+    public void openBlinds() {
+        System.out.println("Opening the blinds.");
+    }
+
+    public void closeBlinds() {
+        System.out.println("Closing the blinds.");
+    }
+}
+public class ShuttersDecorator extends WindowDecorator {
+
+    public ShuttersDecorator(Window window) {
+        super(window);
+    }
+
+    @Override
+    public String getDescription() {
+        return decoratedWindow.getDescription() + ", with shutters";
+    }
+
+    public void openShutters() {
+        System.out.println("Opening the shutters.");
+    }
+
+    public void closeShutters() {
+        System.out.println("Closing the shutters.");
+    }
+}
+public class Main {
+    public static void main(String[] args) {
+        Window basicWindow = new BasicWindow();
+        System.out.println(basicWindow.getDescription());
+        Window windowWithCurtains = new CurtainsDecorator(basicWindow);
+        System.out.println(windowWithCurtains.getDescription());
+        Window windowWithBlindsAndCurtains = new BlindsDecorator(windowWithCurtains);
+        System.out.println(windowWithBlindsAndCurtains.getDescription());
+        Window fullyDecoratedWindow = new ShuttersDecorator(windowWithBlindsAndCurtains);
+        System.out.println(fullyDecoratedWindow.getDescription());
+        fullyDecoratedWindow.open();
+        if (fullyDecoratedWindow instanceof CurtainsDecorator) {
+            ((CurtainsDecorator) fullyDecoratedWindow).openCurtains();
+        }
+        if (fullyDecoratedWindow instanceof BlindsDecorator) {
+            ((BlindsDecorator) fullyDecoratedWindow).openBlinds();
+        }
+        if (fullyDecoratedWindow instanceof ShuttersDecorator) {
+            ((ShuttersDecorator) fullyDecoratedWindow).openShutters();
+        }
+    }
+}
