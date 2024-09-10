@@ -1,0 +1,105 @@
+public enum LogLevel {
+    INFO, DEBUG, ERROR
+}
+public interface Command {
+    void execute(String message);
+}
+public class LogCommand implements Command {
+    private LogHandler handler;
+    private LogLevel logLevel;
+
+    public LogCommand(LogHandler handler, LogLevel logLevel) {
+        this.handler = handler;
+        this.logLevel = logLevel;
+    }
+
+    @Override
+    public void execute(String message) {
+        handler.handleRequest(logLevel, message);
+    }
+}
+public abstract class LogHandler {
+    protected LogHandler nextHandler;
+
+    public void setNextHandler(LogHandler nextHandler) {
+        this.nextHandler = nextHandler;
+    }
+
+    public void handleRequest(LogLevel level, String message) {
+        if (canHandle(level)) {
+            logMessage(message);
+        } else if (nextHandler != null) {
+            nextHandler.handleRequest(level, message);
+        }
+    }
+
+    protected abstract boolean canHandle(LogLevel level);
+    protected abstract void logMessage(String message);
+}
+public class InfoHandler extends LogHandler {
+    @Override
+    protected boolean canHandle(LogLevel level) {
+        return level == LogLevel.INFO;
+    }
+
+    @Override
+    protected void logMessage(String message) {
+        System.out.println("INFO: " + message);
+    }
+}
+public class DebugHandler extends LogHandler {
+    @Override
+    protected boolean canHandle(LogLevel level) {
+        return level == LogLevel.DEBUG;
+    }
+
+    @Override
+    protected void logMessage(String message) {
+        System.out.println("DEBUG: " + message);
+    }
+}
+public class ErrorHandler extends LogHandler {
+    @Override
+    protected boolean canHandle(LogLevel level) {
+        return level == LogLevel.ERROR;
+    }
+
+    @Override
+    protected void logMessage(String message) {
+        System.err.println("ERROR: " + message);
+    }
+}
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+public class Logger {
+    private List<Command> commands = new ArrayList<>();
+
+    public void addCommand(Command command) {
+        commands.add(command);
+    }
+
+    public void processCommands() {
+        Iterator<Command> iterator = commands.iterator();
+        while (iterator.hasNext()) {
+            Command command = iterator.next();
+            command.execute("Processing log message...");
+        }
+    }
+}
+public class Client {
+    public static void main(String[] args) {
+        LogHandler infoHandler = new InfoHandler();
+        LogHandler debugHandler = new DebugHandler();
+        LogHandler errorHandler = new ErrorHandler();
+        infoHandler.setNextHandler(debugHandler);
+        debugHandler.setNextHandler(errorHandler);
+        Logger logger = new Logger();
+
+        // Create and add commands
+        logger.addCommand(new LogCommand(infoHandler, LogLevel.INFO));
+        logger.addCommand(new LogCommand(infoHandler, LogLevel.DEBUG));
+        logger.addCommand(new LogCommand(infoHandler, LogLevel.ERROR));
+        logger.processCommands();
+    }
+}
