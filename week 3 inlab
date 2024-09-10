@@ -1,0 +1,138 @@
+package aoop;
+class GameState {
+	//week 3 in lab
+    private static GameState instance;
+    private int level = 1;
+    private int score = 0;
+
+    private GameState() {
+    	
+    }
+    public static GameState getInstance() {
+        if (instance == null) {
+            instance = new GameState();
+        }
+        return instance;
+    }
+    public void nextLevel() {
+        level++;
+    }
+    public void addScore(int points) {
+        score += points;
+    }
+    public int getLevel() {
+        return level;
+    }
+
+    public int getScore() {
+        return score;
+    }
+}
+interface Enemy {
+    void attack();
+}
+class EasyEnemy implements Enemy {
+    public void attack() {
+        System.out.println("Easy enemy attacks weakly!");
+    }
+}
+class HardEnemy implements Enemy {
+    public void attack() {
+        System.out.println("Hard enemy attacks strongly!");
+    }
+}
+
+interface EnemyFactory {
+    Enemy createEnemy();
+}
+class EasyEnemyFactory implements EnemyFactory {
+    public Enemy createEnemy() {
+        return new EasyEnemy();
+    }
+}
+class HardEnemyFactory implements EnemyFactory {
+    public Enemy createEnemy() {
+        return new HardEnemy();
+    }
+}
+interface Weapon {
+    void use();
+}
+interface PowerUp {
+    void activate();
+}
+
+class Sword implements Weapon {
+    public void use() {
+        System.out.println("Swinging a sword!");
+    }
+}
+
+class HealthPotion implements PowerUp {
+    public void activate() {
+        System.out.println("Activating a health potion!");
+    }
+}
+class Gun implements Weapon {
+    public void use() {
+        System.out.println("Firing a gun!");
+    }
+}
+
+class SpeedBoost implements PowerUp {
+    public void activate() {
+        System.out.println("Activating a speed boost!");
+    }
+}
+interface GameItemFactory {
+    Weapon createWeapon();
+    PowerUp createPowerUp();
+}
+
+class MedievalItemFactory implements GameItemFactory {
+    public Weapon createWeapon() {
+        return new Sword();
+    }
+    public PowerUp createPowerUp() {
+        return new HealthPotion();
+    }
+}
+class ModernItemFactory implements GameItemFactory {
+    public Weapon createWeapon() {
+        return new Gun();
+    }
+    public PowerUp createPowerUp() {
+        return new SpeedBoost();
+    }
+}
+public class Game {
+
+    public static void main(String[] args) {
+        GameState gameState = GameState.getInstance();
+        EnemyFactory enemyFactory = new EasyEnemyFactory();
+        Enemy easyEnemy = enemyFactory.createEnemy();
+        easyEnemy.attack();
+
+        enemyFactory = new HardEnemyFactory();
+        Enemy hardEnemy = enemyFactory.createEnemy();
+        hardEnemy.attack();
+        GameItemFactory itemFactory = new MedievalItemFactory();
+        Weapon sword = itemFactory.createWeapon();
+        PowerUp healthPotion = itemFactory.createPowerUp();
+
+        sword.use();
+        healthPotion.activate();
+
+        itemFactory = new ModernItemFactory();
+        Weapon gun = itemFactory.createWeapon();
+        PowerUp speedBoost = itemFactory.createPowerUp();
+
+        gun.use();
+        speedBoost.activate();
+        System.out.println("Current Level: " + gameState.getLevel());
+        gameState.nextLevel();
+        System.out.println("Next Level: " + gameState.getLevel());
+        gameState.addScore(100);
+        System.out.println("Score: " + gameState.getScore());
+    }
+}
