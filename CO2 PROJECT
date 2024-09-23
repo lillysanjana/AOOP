@@ -1,0 +1,154 @@
+import java.util.Date;
+
+public class Event implements Comparable<Event>, Cloneable {
+    private String name;
+    private Date date;
+    private String location;
+    private int priority;
+    private int duration; 
+
+    public Event(String name, Date date, String location, int priority, int duration) {
+        this.name = name;
+        this.date = date;
+        this.location = location;
+        this.priority = priority;
+        this.duration = duration;
+    }
+
+    public int compareTo(Event other) {
+        return this.date.compareTo(other.date); 
+    }
+    public Event clone() {
+        try {
+            return (Event) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("Event cloning not supported", e);
+        }
+    }
+    public String toString() {
+        return "Event{" +
+                "name='" + name + '\'' +
+                ", date=" + date +
+                ", location='" + location + '\'' +
+                ", priority=" + priority +
+                ", duration=" + duration +
+                '}';
+    }
+}
+
+import java.util.Comparator;
+
+public class EventComparator {
+
+    public static Comparator<Event> compareByName() {
+        return new Comparator<Event>() {
+            public int compare(Event e1, Event e2) {
+                return e1.getName().compareTo(e2.getName());
+            }
+        };
+    }
+
+    public static Comparator<Event> compareByPriority() {
+        return new Comparator<Event>() {
+            public int compare(Event e1, Event e2) {
+                return Integer.compare(e1.getPriority(), e2.getPriority());
+            }
+        };
+    }
+
+    public static Comparator<Event> compareByDuration() {
+        return new Comparator<Event>() {
+            public int compare(Event e1, Event e2) {
+                return Integer.compare(e1.getDuration(), e2.getDuration());
+            }
+        };
+    }
+}
+
+
+import java.util.Iterator;
+import java.util.List;
+
+public class EventIterator implements Iterator<Event> {
+    private List<Event> eventList;
+    private int currentIndex = 0;
+
+    public EventIterator(List<Event> eventList) {
+        this.eventList = eventList;
+    }
+
+    public boolean hasNext() {
+        return currentIndex < eventList.size();
+    }
+    public Event next() {
+        return eventList.get(currentIndex++);
+    }
+}
+
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class EventManager {
+    private List<Event> eventList = new ArrayList<>();
+
+    public void addEvent(Event event) {
+        eventList.add(event);
+    }
+
+    public void sortEventsByDate() {
+        Collections.sort(eventList);
+    }
+
+    public void sortEventsByComparator(Comparator<Event> comparator) {
+        Collections.sort(eventList, comparator);
+    }
+
+    public Event cloneEvent(int index) {
+        Event originalEvent = eventList.get(index);
+        return originalEvent.clone();
+    }
+
+    public Iterator<Event> getEventIterator() {
+        return new EventIterator(eventList);
+    }
+
+    public void displayEvents() {
+        for (Event event : eventList) {
+            System.out.println(event);
+        }
+    }
+}
+
+
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+        EventManager manager = new EventManager();
+
+        manager.addEvent(new Event("Conference", new Date(2023, 9, 10), "New York", 1, 3));
+        manager.addEvent(new Event("Workshop", new Date(2023, 9, 5), "Boston", 2, 2));
+        manager.addEvent(new Event("Seminar", new Date(2023, 9, 12), "San Francisco", 3, 4));
+
+        System.out.println("Unsorted Events:");
+        manager.displayEvents();
+
+        System.out.println("\nSorted by Date:");
+        manager.sortEventsByDate();
+        manager.displayEvents();
+
+        System.out.println("\nSorted by Name:");
+        manager.sortEventsByComparator(EventComparator.compareByName());
+        manager.displayEvents();
+
+        Event clonedEvent = manager.cloneEvent(0);
+        System.out.println("\nCloned Event: " + clonedEvent);
+        System.out.println("\nIterating over Events:");
+        Iterator<Event> iterator = manager.getEventIterator();
+        while (iterator.hasNext()) {
+            System.out.println(iterator.next());
+        }
+    }
+}
